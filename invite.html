@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>루프탑 생일 티켓</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+  :root{
+    --bg:#100c1c;
+    --card:#1c1732;
+    --edge:#3a3260;
+    --edge-soft:#2a2448;
+    --text:#f5efe3;
+    --text-muted:#a89fc9;
+    --accent:#e8b24a;
+    --accent-strong:#f4c469;
+    --accent-ink:#2c1c02;
+    --decline:#5fc7ae;
+    --decline-ink:#e9fbf5;
+  }
+
+  *{ box-sizing:border-box; }
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+    padding-block: 48px;
+  }
+
+  .stage{
+    min-height: calc(100vh - 96px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 0 16px;
+    position:relative;
+  }
+
+  .sky{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    overflow:hidden;
+    z-index:0;
+  }
+  .sky svg{ position:absolute; bottom:0; left:0; width:100%; height:auto; opacity:.55; }
+
+  .ticket{
+    position:relative;
+    z-index:1;
+    width:100%;
+    max-width:420px;
+    background:var(--card);
+    border-radius:22px;
+    border:1px solid var(--edge-soft);
+    box-shadow: 0 30px 60px -25px rgba(0,0,0,.6);
+    overflow:visible;
+  }
+
+  .ticket-top{
+    padding: 30px 28px 22px;
+  }
+
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:var(--accent-strong);
+    margin:0 0 14px;
+  }
+
+  .event-title{
+    font-family:'Gowun Batang', serif;
+    font-weight:700;
+    font-size: clamp(24px, 6vw, 30px);
+    line-height:1.35;
+    margin:0 0 20px;
+    text-wrap:balance;
+    color:var(--text);
+  }
+
+  .lights{
+    display:flex;
+    gap:10px;
+    margin: 0 0 22px;
+  }
+  .lights span{
+    width:8px; height:8px; border-radius:50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px 2px rgba(232,178,74,.55);
+    animation: flicker 2.6s ease-in-out infinite;
+  }
+  .lights span:nth-child(2n){ background:var(--decline); box-shadow:0 0 8px 2px rgba(95,199,174,.5); animation-delay:.6s; }
+  .lights span:nth-child(3n){ animation-delay:1.2s; }
+  .lights span:nth-child(4n){ animation-delay:1.8s; }
+  @keyframes flicker{
+    0%,100%{ opacity:1; }
+    50%{ opacity:.35; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .lights span{ animation:none; }
+  }
+
+  .fields{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 18px;
+    margin:0;
+  }
+  .field dt{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px;
+    letter-spacing:.14em;
+    color:var(--text-muted);
+    margin-bottom:5px;
+  }
+  .field dd{
+    margin:0;
+    font-size:14.5px;
+    font-weight:500;
+    color:var(--text);
+    line-height:1.4;
+  }
+  .field.wide{ grid-column: 1 / -1; }
+
+  .example-note{
+    margin: 20px 0 0;
+    font-size:12px;
+    color:var(--text-muted);
+    line-height:1.6;
+    border-top:1px solid var(--edge-soft);
+    padding-top:14px;
+  }
+
+  .perforation{
+    position:relative;
+    height:0;
+    border-top:2px dashed var(--edge);
+  }
+  .perforation::before,
+  .perforation::after{
+    content:"";
+    position:absolute;
+    top:-13px;
+    width:26px; height:26px;
+    border-radius:50%;
+    background:var(--bg);
+  }
+  .perforation::before{ left:-13px; }
+  .perforation::after{ right:-13px; }
+
+  .ticket-stub{
+    padding: 24px 28px 30px;
+  }
+
+  .stub-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:var(--text-muted);
+    margin:0 0 16px;
+  }
+
+  .name-field{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    margin-bottom:18px;
+  }
+  .name-field span{
+    font-size:12.5px;
+    color:var(--text-muted);
+  }
+  .name-field input{
+    background:var(--bg);
+    border:1px solid var(--edge);
+    border-radius:10px;
+    padding:11px 13px;
+    color:var(--text);
+    font-family:'Noto Sans KR', sans-serif;
+    font-size:14.5px;
+    outline:none;
+    width:100%;
+  }
+  .name-field input:focus{
+    border-color:var(--accent);
+    box-shadow:0 0 0 3px rgba(232,178,74,.18);
+  }
+  .name-field input::placeholder{ color: #6e6690; }
+
+  .rsvp-actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .btn{
+    flex:1 1 150px;
+    text-align:center;
+    padding:13px 14px;
+    border-radius:12px;
+    font-size:14.5px;
+    font-weight:700;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:7px;
+    transition: transform .15s ease, filter .15s ease;
+  }
+  .btn:hover{ filter:brightness(1.06); transform: translateY(-1px); }
+  .btn:focus-visible{ outline:2px solid var(--accent-strong); outline-offset:2px; }
+
+  .btn-accept{
+    background: linear-gradient(180deg, var(--accent-strong), var(--accent));
+    color: var(--accent-ink);
+  }
+  .btn-decline{
+    background: transparent;
+    border:1.5px solid var(--decline);
+    color: var(--decline);
+  }
+
+  .stub-note{
+    margin: 16px 0 0;
+    font-size:12px;
+    line-height:1.6;
+    color:var(--text-muted);
+  }
+
+  @media (max-width: 400px){
+    .ticket-top{ padding:26px 20px 20px; }
+    .ticket-stub{ padding:20px 20px 26px; }
+    .fields{ grid-template-columns: 1fr 1fr; gap:14px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stage" id="mainStage">
+  <div class="sky" aria-hidden="true">
+    <svg viewBox="0 0 420 140" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="18" y="60" width="26" height="80" fill="#241d40"/>
+      <rect x="52" y="30" width="20" height="110" fill="#2a2249"/>
+      <rect x="80" y="70" width="30" height="70" fill="#221b3d"/>
+      <rect x="330" y="45" width="24" height="95" fill="#2a2249"/>
+      <rect x="362" y="75" width="18" height="65" fill="#241d40"/>
+      <rect x="386" y="55" width="22" height="85" fill="#221b3d"/>
+      <circle cx="30" cy="72" r="1.6" fill="#e8b24a"/>
+      <circle cx="60" cy="45" r="1.6" fill="#f4c469"/>
+      <circle cx="95" cy="85" r="1.6" fill="#e8b24a"/>
+      <circle cx="340" cy="60" r="1.6" fill="#5fc7ae"/>
+      <circle cx="395" cy="70" r="1.6" fill="#e8b24a"/>
+    </svg>
+  </div>
+
+  <main class="ticket" role="group" aria-label="파티 초대장 티켓">
+    <section class="ticket-top">
+      <p class="eyebrow">You're invited</p>
+      <h1 class="event-title">지민의 서른 번째<br>루프탑 생일 파티</h1>
+      <div class="lights" aria-hidden="true">
+        <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+      </div>
+      <dl class="fields">
+        <div class="field">
+          <dt>DATE</dt>
+          <dd>2026.10.03 (토)</dd>
+        </div>
+        <div class="field">
+          <dt>TIME</dt>
+          <dd>오후 7:00</dd>
+        </div>
+        <div class="field wide">
+          <dt>VENUE</dt>
+          <dd>성수동 루프탑 라운지 무드 (예시 장소)</dd>
+        </div>
+        <div class="field">
+          <dt>HOST</dt>
+          <dd>지민</dd>
+        </div>
+        <div class="field">
+          <dt>DRESS</dt>
+          <dd>블랙 or 골드 포인트</dd>
+        </div>
+      </dl>
+      <p class="example-note">* 지금은 예시로 채운 정보예요. 실제 날짜·장소·이름으로 바꿔서 다시 만들어드릴 수 있어요.</p>
+    </section>
+
+    <div class="perforation" aria-hidden="true"></div>
+
+    <section class="ticket-stub">
+      <p class="stub-label">RSVP</p>
+      <label class="name-field">
+        <span>이름</span>
+        <input type="text" id="guestName" placeholder="회신에 남길 이름을 적어주세요" autocomplete="name" />
+      </label>
+      <div class="rsvp-actions">
+        <a class="btn btn-accept" id="acceptBtn" href="#">참석하기</a>
+        <a class="btn btn-decline" id="declineBtn" href="#">아쉽지만 불참</a>
+      </div>
+      <p class="stub-note">버튼을 누르면 이메일 앱이 열려요. 그대로 보내기만 누르면 호스트에게 회신이 전달됩니다.</p>
+    </section>
+  </main>
+</div>
+
+<script>
+  (function(){
+    var HOST_EMAIL = "jemin.hong.art@gmail.com";
+    var EVENT_LINE = '이벤트: 지민의 서른 번째 루프탑 생일 파티\n일시: 2026.10.03 (토) 오후 7:00';
+
+    function buildMailto(status, name){
+      var who = name ? (name + '님이 ') : '';
+      var subject = encodeURIComponent('[파티 RSVP] ' + (name ? name + ' — ' : '') + status);
+      var body = encodeURIComponent(
+        who + '"' + status + '"로 회신합니다.\n\n' +
+        EVENT_LINE + '\n\n' +
+        '(카카오톡 초대장에서 바로 전달된 회신입니다.)'
+      );
+      return 'mailto:' + HOST_EMAIL + '?subject=' + subject + '&body=' + body;
+    }
+
+    var nameInput = document.getElementById('guestName');
+    var acceptBtn = document.getElementById('acceptBtn');
+    var declineBtn = document.getElementById('declineBtn');
+    if(nameInput && acceptBtn && declineBtn){
+      function refresh(){
+        var name = (nameInput.value || '').trim();
+        acceptBtn.href = buildMailto('참석', name);
+        declineBtn.href = buildMailto('불참', name);
+      }
+      nameInput.addEventListener('input', refresh);
+      refresh();
+    }
+  })();
+</script>
+</body>
+</html>
