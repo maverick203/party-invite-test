@@ -3,37 +3,242 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>회신 처리 중</title>
+<title>깜짝 이벤트</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&display=swap">
 <style>
-  html,body{margin:0;height:100%;background:#100c1c;color:#a89fc9;font-family:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;}
-  .wrap{display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column;gap:14px;padding:24px;text-align:center;box-sizing:border-box;}
-  .dot{width:9px;height:9px;border-radius:50%;background:#e8b24a;animation:pulse 1s ease-in-out infinite;}
-  @keyframes pulse{0%,100%{opacity:.25}50%{opacity:1}}
-  a.fallback{display:none;margin-top:6px;color:#2c1c02;background:linear-gradient(180deg,#f4c469,#e8b24a);padding:11px 18px;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px;}
-  a.fallback.show{display:inline-block;}
+  :root{
+    --bg:#100c1c;
+    --bg2:#1c1732;
+    --accent:#e8b24a;
+    --accent-strong:#f4c469;
+    --teal:#5fc7ae;
+    --text:#f5efe3;
+    --text-muted:#a89fc9;
+  }
+  *{ box-sizing:border-box; }
+  html,body{
+    margin:0;
+    height:100%;
+    background:var(--bg);
+    overflow:hidden;
+  }
+  body{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  }
+
+  .bg-gradient{
+    position:fixed;
+    inset:0;
+    background:
+      radial-gradient(ellipse at 50% 30%, #251c42 0%, transparent 60%),
+      linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+    z-index:0;
+  }
+
+  .sky{
+    position:fixed;
+    inset:0;
+    z-index:0;
+    pointer-events:none;
+    overflow:hidden;
+  }
+  .sky svg{ position:absolute; bottom:0; left:0; width:100%; height:auto; opacity:.5; }
+
+  canvas#fx{
+    position:fixed;
+    inset:0;
+    z-index:1;
+    pointer-events:none;
+  }
+
+  .stage{
+    position:relative;
+    z-index:2;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:24px;
+  }
+
+  .halo{
+    position:absolute;
+    width:520px;
+    height:520px;
+    max-width:140vw;
+    max-height:140vw;
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(232,178,74,.55) 0%, rgba(232,178,74,.22) 32%, rgba(95,199,174,.10) 55%, transparent 72%);
+    filter: blur(6px);
+    animation: pulse 3.2s ease-in-out infinite;
+    z-index:-1;
+  }
+  @keyframes pulse{
+    0%,100%{ transform:scale(1); opacity:.85; }
+    50%{ transform:scale(1.12); opacity:1; }
+  }
+
+  .eyebrow{
+    font-family:'Noto Sans KR', sans-serif;
+    font-size:13px;
+    letter-spacing:.3em;
+    text-transform:uppercase;
+    color:var(--text-muted);
+    margin:0 0 18px;
+  }
+
+  .joke-title{
+    font-family:'Gowun Batang', serif;
+    font-weight:700;
+    font-size: clamp(36px, 11vw, 76px);
+    line-height:1.25;
+    margin:0;
+    color:var(--text);
+    text-shadow:
+      0 0 12px rgba(244,196,105,.9),
+      0 0 32px rgba(232,178,74,.7),
+      0 0 64px rgba(232,178,74,.45),
+      0 2px 0 rgba(0,0,0,.3);
+    text-wrap:balance;
+  }
+
+  .joke-sub{
+    margin: 22px 0 0;
+    font-size:15px;
+    color:var(--text-muted);
+    line-height:1.7;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .halo{ animation:none; }
+  }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="dot" aria-hidden="true"></div>
-  <a id="fallback" class="fallback" href="#">이메일 앱이 안 열리면 여기를 눌러주세요</a>
-</div>
+  <div class="bg-gradient" aria-hidden="true"></div>
+  <div class="sky" aria-hidden="true">
+    <svg viewBox="0 0 420 140" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="18" y="60" width="26" height="80" fill="#241d40"/>
+      <rect x="52" y="30" width="20" height="110" fill="#2a2249"/>
+      <rect x="80" y="70" width="30" height="70" fill="#221b3d"/>
+      <rect x="330" y="45" width="24" height="95" fill="#2a2249"/>
+      <rect x="362" y="75" width="18" height="65" fill="#241d40"/>
+      <rect x="386" y="55" width="22" height="85" fill="#221b3d"/>
+    </svg>
+  </div>
+  <canvas id="fx"></canvas>
+
+  <div class="stage">
+    <div class="halo" aria-hidden="true"></div>
+    <p class="eyebrow" id="eyebrow">SURPRISE</p>
+    <h1 class="joke-title" id="jokeTitle">장난이에요 🎉</h1>
+    <p class="joke-sub" id="jokeSub">참석하기 눌러줘서 고마워요 — 진짜 초대는 곧 다시 보낼게요!</p>
+  </div>
+
 <script>
 (function(){
-  var HOST_EMAIL = "jemin.hong.art@gmail.com";
-  var EVENT_LINE = '이벤트: 지민의 서른 번째 루프탑 생일 파티\n일시: 2026.10.03 (토) 오후 7:00';
   var params = new URLSearchParams(window.location.search);
   var r = params.get('r');
-  var status = r === 'no' ? '불참' : '참석';
-  var subject = encodeURIComponent('[파티 RSVP] ' + status);
-  var body = encodeURIComponent(
-    '"' + status + '"로 회신합니다.\n\n' + EVENT_LINE + '\n\n(카카오톡 초대장에서 바로 전달된 회신입니다.)'
-  );
-  var mailto = 'mailto:' + HOST_EMAIL + '?subject=' + subject + '&body=' + body;
-  var fb = document.getElementById('fallback');
-  fb.href = mailto;
-  window.location.replace(mailto);
-  setTimeout(function(){ fb.classList.add('show'); }, 900);
+  var titleEl = document.getElementById('jokeTitle');
+  var subEl = document.getElementById('jokeSub');
+  if (r === 'no'){
+    titleEl.textContent = '재밌으셨나요? 🎉';
+    subEl.textContent = '거절하기도 폭죽은 받을 자격 있죠 — 진짜 초대는 곧 다시 보낼게요!';
+  } else if (r === 'yes'){
+    titleEl.textContent = '장난이에요 🎉';
+    subEl.textContent = '참석하기 눌러줘서 고마워요 — 진짜 초대는 곧 다시 보낼게요!';
+  } else {
+    titleEl.textContent = '감사합니다 🎉';
+    subEl.textContent = '초대장을 열어봐주셔서 감사해요!';
+  }
+
+  var canvas = document.getElementById('fx');
+  var ctx = canvas.getContext('2d');
+  var W, H, DPR;
+  function resize(){
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = canvas.width = innerWidth * DPR;
+    H = canvas.height = innerHeight * DPR;
+    canvas.style.width = innerWidth + 'px';
+    canvas.style.height = innerHeight + 'px';
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  var colors = ['#e8b24a', '#f4c469', '#5fc7ae', '#f5efe3', '#ff9f6b'];
+  var particles = [];
+
+  function launchFirework(x, y){
+    var count = 46 + Math.floor(Math.random() * 20);
+    var color = colors[Math.floor(Math.random() * colors.length)];
+    for (var i = 0; i < count; i++){
+      var angle = (Math.PI * 2 * i) / count + Math.random() * 0.2;
+      var speed = (2 + Math.random() * 3.2) * DPR;
+      particles.push({
+        x: x, y: y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        life: 1,
+        decay: 0.008 + Math.random() * 0.012,
+        color: color,
+        size: (1.4 + Math.random() * 1.8) * DPR
+      });
+    }
+  }
+
+  function randomBurstPoint(){
+    var x = (0.15 + Math.random() * 0.7) * innerWidth * DPR;
+    var y = (0.12 + Math.random() * 0.42) * innerHeight * DPR;
+    return [x, y];
+  }
+
+  function tick(){
+    ctx.fillStyle = 'rgba(16,12,28,0.22)';
+    ctx.fillRect(0, 0, W, H);
+
+    for (var i = particles.length - 1; i >= 0; i--){
+      var p = particles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.02 * DPR;
+      p.vx *= 0.99;
+      p.life -= p.decay;
+      if (p.life <= 0){
+        particles.splice(i, 1);
+        continue;
+      }
+      ctx.globalAlpha = Math.max(p.life, 0);
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(tick);
+  }
+
+  function scheduleBursts(){
+    var pt = randomBurstPoint();
+    launchFirework(pt[0], pt[1]);
+    var next = 550 + Math.random() * 700;
+    setTimeout(scheduleBursts, next);
+  }
+
+  for (var i = 0; i < 3; i++){
+    (function(i){
+      setTimeout(function(){
+        var pt = randomBurstPoint();
+        launchFirework(pt[0], pt[1]);
+      }, i * 260);
+    })(i);
+  }
+
+  requestAnimationFrame(tick);
+  scheduleBursts();
 })();
 </script>
 </body>
