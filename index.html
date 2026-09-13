@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+  <html lang="ko">
+  <head>
+  <meta charset="UTF-8">
+  <title>카카오톡 공유 테스트 - 파티초대장</title>
+  <style>
+    body { font-family: -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; max-width: 480px; margin: 60px auto; padding: 0 20px; }
+  h2 { margin-bottom: 4px; }
+  p.sub { color: #666; margin-top: 0; }
+  button { font-size: 16px; padding: 14px 22px; border-radius: 10px; border: none; background: #FEE500; cursor: pointer; font-weight: 700; }
+    button:hover { filter: brightness(0.97); }
+  #status { margin-top: 16px; padding: 12px 14px; border-radius: 8px; background: #f4f4f4; font-size: 13px; white-space: pre-wrap; }
+      </style>
+      </head>
+      <body>
+        <h2>🎫 카카오톡 공유 테스트</h2>
+        <p class="sub">아래 버튼을 누르면 실제로 카카오톡 "나에게 보내기" 또는 친구 선택 창이 뜹니다.</p>
+        <button id="btn">카카오톡으로 공유하기</button>
+      <div id="status">대기 중...</div>
+
+      <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.8.1/kakao.min.js"></script>
+      <script>
+        var statusEl = document.getElementById('status');
+    try {
+      Kakao.init('6a2e19be6f392dde985a9a6f79ae68db');
+      statusEl.textContent = 'SDK 초기화 완료 (isInitialized: ' + Kakao.isInitialized() + ')\n버튼을 눌러 테스트하세요.';
+    } catch (e) {
+      statusEl.textContent = '초기화 오류: ' + e.message;
+    }
+
+    var BASE = 'https://claude.ai/code/artifact/fb386ab5-7f40-4982-9384-f7ba5afb0659';
+
+    document.getElementById('btn').addEventListener('click', function () {
+            try {
+        Kakao.Share.sendDefault({
+                    objectType: 'text',
+                    text: '🎫 지민의 서른 번째 생일 파티 · 10/3(토) 오후 7시 · 성수동 루프탑 라운지 · 아래 버튼으로 참석 여부를 알려주세요',
+                    link: {
+                      mobileWebUrl: BASE,
+                                    webUrl: BASE
+                        },
+                                  buttons: [
+{
+              title: '참석하기',
+                              link: { mobileWebUrl: BASE + '?r=yes', webUrl: BASE + '?r=yes' }
+},
+                                    {
+                                                  title: '거절하기',
+                                                  link: { mobileWebUrl: BASE + '?r=no', webUrl: BASE + '?r=no' }
+            }
+                        ]
+              });
+        statusEl.textContent = '공유 요청을 보냈습니다. 카카오톡 창이 뜨는지 확인하세요.';
+} catch (e) {
+        statusEl.textContent = '공유 오류: ' + e.message;
+}
+});
+  </script>
+</body>
+</html>
