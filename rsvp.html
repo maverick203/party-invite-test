@@ -82,15 +82,6 @@
     50%{ transform:scale(1.12); opacity:1; }
   }
 
-  .eyebrow{
-    font-family:'Noto Sans KR', sans-serif;
-    font-size:13px;
-    letter-spacing:.3em;
-    text-transform:uppercase;
-    color:var(--text-muted);
-    margin:0 0 18px;
-  }
-
   .joke-title{
     font-family:'Gowun Batang', serif;
     font-weight:700;
@@ -104,13 +95,6 @@
       0 0 64px rgba(232,178,74,.45),
       0 2px 0 rgba(0,0,0,.3);
     text-wrap:balance;
-  }
-
-  .joke-sub{
-    margin: 22px 0 0;
-    font-size:15px;
-    color:var(--text-muted);
-    line-height:1.7;
   }
 
   @media (prefers-reduced-motion: reduce){
@@ -134,9 +118,7 @@
 
   <div class="stage">
     <div class="halo" aria-hidden="true"></div>
-    <p class="eyebrow" id="eyebrow">SURPRISE</p>
     <h1 class="joke-title" id="jokeTitle">장난이에요 🎉</h1>
-    <p class="joke-sub" id="jokeSub">참석하기 눌러줘서 고마워요 — 진짜 초대는 곧 다시 보낼게요!</p>
   </div>
 
 <script>
@@ -144,16 +126,12 @@
   var params = new URLSearchParams(window.location.search);
   var r = params.get('r');
   var titleEl = document.getElementById('jokeTitle');
-  var subEl = document.getElementById('jokeSub');
   if (r === 'no'){
     titleEl.textContent = '재밌으셨나요? 🎉';
-    subEl.textContent = '거절하기도 폭죽은 받을 자격 있죠 — 진짜 초대는 곧 다시 보낼게요!';
   } else if (r === 'yes'){
     titleEl.textContent = '장난이에요 🎉';
-    subEl.textContent = '참석하기 눌러줘서 고마워요 — 진짜 초대는 곧 다시 보낼게요!';
   } else {
     titleEl.textContent = '감사합니다 🎉';
-    subEl.textContent = '초대장을 열어봐주셔서 감사해요!';
   }
 
   var canvas = document.getElementById('fx');
